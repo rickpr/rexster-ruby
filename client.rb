@@ -113,21 +113,35 @@ module Rexster
   class Vertex < Client
 
     def out_edges
-      Client.get(URI.join(@url, 'outE'))
+      get_items('outE', base_url: @graph.url)
     end
 
     def edges
       get_items('bothE', base_url: @graph.url)
-      #Client.get(URI.join(@url, 'bothE'))
     end
 
     def in_edges
-      Client.get(URI.join(@url, 'inE'))
+      get_items('inE', base_url: @graph.url)
     end
 
   end
 
   class Edge < Client
+
+    def in_vertex
+      url = URI.join(@graph.url, 'vertices/', @response["results"]["_inV"].to_s << '/' )
+      Vertex.new(url, @graph)
+    end
+
+    def out_vertex
+      url = URI.join(@graph.url, 'vertices/', @response["results"]["_outV"].to_s << '/' )
+      Vertex.new(url, @graph)
+    end
+
+    def vertices
+      [in_vertex, out_vertex]
+    end
+
   end
 
 end
