@@ -1,6 +1,6 @@
-require './config'
 require 'httparty'
 require 'active_support/inflector'
+require './config'
 
 module Rexster
 
@@ -124,6 +124,25 @@ module Rexster
       get_items('inE', base_url: @graph.url)
     end
 
+    class << self
+
+      def create(id: nil, **attrs)
+        @graph ||= Rexster.configuration.graph
+        @graph.add_vertex(id: id, **attrs)
+      end
+
+      def destroy_all
+        @graph ||= Rexster.configuration.graph
+        @graph.vertices.each(&:destroy)
+      end
+
+      def find &block
+        @graph ||= Rexster.configuration.graph
+        @graph.vertices.find(&block)
+      end
+
+    end
+
   end
 
   class Edge < Client
@@ -140,6 +159,25 @@ module Rexster
 
     def vertices
       [in_vertex, out_vertex]
+    end
+
+    class << self
+
+      def create(id: nil, outV:, inV:, label:, **attrs)
+        @graph ||= Rexster.configuration.graph
+        @graph.add_edge(id: id, outV: outV, inV: inV, label: label, **attrs)
+      end
+
+      def destroy_all
+        @graph ||= Rexster.configuration.graph
+        @graph.edges.each(&:destroy)
+      end
+
+      def find &block
+        @graph ||= Rexster.configuration.graph
+        @graph.vertices.find(&block)
+      end
+
     end
 
   end
