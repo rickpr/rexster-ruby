@@ -91,21 +91,21 @@ module Rexster
       warn "Graph has no id"
     end
 
-    class << self
+    def add_vertex(id: nil, **attrs)
+      url = URI.join(@url, 'vertices/', id.to_s)
+      url.query = URI::encode_www_form(attrs)
+      response = Client.post(url)
+      vertex = URI.join(url, response["results"]["_id"].to_s << '/')
+      Vertex.new(vertex, self)
+    end
 
-      def add_vertex(id: nil, **attrs)
-        url = URI.join(@url, 'vertices/', id.to_s)
-        url.query = URI::encode_www_form(attrs)
-        Vertex.new(Client.post(url))
-      end
-
-      def add_edge(id: nil, outV:, inV:, **attrs) 
-        url = URI.join(@url, 'edges/', id.to_s)
-        attrs.merge!({ _outV: outV, _inV: inV })
-        url.query = URI::encode_www_form(attrs)
-        Edge.new(Client.post(url))
-      end
-
+    def add_edge(id: nil, outV:, inV:, label:, **attrs) 
+      url = URI.join(@url, 'edges/', id.to_s)
+      attrs.merge!({ _outV: outV, _inV: inV, _label: label })
+      url.query = URI::encode_www_form(attrs)
+      response = Client.post(url)
+      edge = URI.join(url, response["results"]["_id"].to_s << '/')
+      Edge.new(edge, self)
     end
 
   end
